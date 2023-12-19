@@ -39,11 +39,102 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-  const express = require('express');
-  const bodyParser = require('body-parser');
-  
-  const app = express();
-  
-  app.use(bodyParser.json());
-  
-  module.exports = app;
+const express = require("express");
+const bodyParser = require("body-parser");
+const { v4: uuidv4 } = require("uuid");
+const fs = require("fs");
+
+function readFile(fileName) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(fileName, "utf-8", (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+}
+
+function writeFile(fileName, data) {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(fileName, data, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+const app = express();
+
+app.use(bodyParser.json());
+
+app.get("/todos", async (req, res, next) => {
+  const jsonData = await readFile("./todos.json");
+  const todosList = JSON.parse(jsonData);
+  res.status(200).json(todosList);
+});
+
+app.get("/todos/:id", async (req, res, next) => {
+  const todoId = req.params.id;
+  const jsonData = await readFile("./todos.json");
+  const todosList = JSON.parse(jsonData);
+  const todo = todosList.find((value) => value.id === todoId);
+
+  if (todo) {
+    res.status(200).json(todo);
+  } else {
+    res.status(404).json("Not found");
+  }
+});
+
+app.post("/todos", async (req, res, next) => {
+  const jsonData = req.body;
+  const id = uuidv4();
+  if (id) {
+    const todo = { id, ...jsonData };
+    const jsonFileData = await readFile("./todos.json");
+    const todoList = JSON.parse(jsonFileData);
+    todoList.push(todo);
+    await writeFile("./todos.json", JSON.stringify(todoList));
+    res.status(201).json({ id });
+  }
+});
+
+app.put("/todos/:id",async (req, res, next) => {
+  const todoId = req.params.id;
+  const todoChange = req.body;
+  const jsonFileData = await readFile('./todos.json');
+  const todoList = JSON.parse(jsonFileData);
+  const indexOfTodo = todoList.findIndex((value) => value.id === todoId);
+  if (indexOfTodo !== -1) {
+    const [todo] = todoList.splice(indexOfTodo, 1);
+    todoList.push({...todo, ...todoChange});
+    await writeFile('./todos.json', JSON.stringify(todoList));
+    res.status(200).json("updated");
+  }
+  else {
+    res.status(404).json("not found");
+  }
+});
+
+app.delete("/todos/:id", async (req, res, next) => {
+  const todoId = req.params.id;
+  const jsonFileData = await readFile('./todos.json');
+  const todoList = JSON.parse(jsonFileData);
+  const indexOfTodo = todoList.find((value)=>value.id === todoId);
+  if (indexOfTodo !== -1) {
+    todoList.splice(indexOfTodo, 1);
+    await writeFile('./todos.json', JSON.stringify(todoList));
+    res.status(200).json('deleted');
+  }else {
+    res.status(404).json("Not found");
+  }
+});
+
+// app.listen(3001, () => console.log("connected"));
+
+module.exports = app;
