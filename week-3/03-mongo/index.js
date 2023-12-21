@@ -11,6 +11,12 @@ app.use(bodyParser.json());
 app.use("/admin", adminRouter)
 app.use("/user", userRouter)
 
+app.use((err, req, res, next) => {
+    if (err) {
+        res.status(500).json(err);
+    }
+})
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
