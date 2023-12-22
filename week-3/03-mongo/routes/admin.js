@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const adminMiddleware = require("../middleware/admin");
 const router = Router();
-const { Admin } = require("../db/index");
+const { Admin, Course } = require("../db/index");
 const userMiddleware = require("../middleware/user");
 
 // Admin Routes
@@ -26,28 +26,44 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-router.post("/courses", adminMiddleware, (req, res) => {
+router.post("/courses", adminMiddleware, async (req, res) => {
   // Implement course creation logic
   const course = req.body;
   const username = req.headers.username;
-  const courseCreated = Admin.findOneAndUpdate(
+
+  const newCourse = new Course();
+  newCourse.title = course.title;
+  newCourse.description = course.description;
+  newCourse.price = course.price;
+  newCourse.imageLink = course.imageLink;
+  newCourse.published = course.published;
+
+  const courseCreated = await newCourse.save();
+
+  const courseUpdatedToAdmin = await Admin.findOneAndUpdate(
     { username: username },
-    { $push: { courses: course } },
+    { $push: { courses: courseCreated } },
     { new: true, useFindAndModify: false }
   );
-  if (courseCreated) {
-    res.status(200).json({message: "Course created successfully", courseId: courseCreated._id});
+
+  if (courseUpdatedToAdmin) {
+    res.status(200).json({
+      message: "Course created successfully",
+      courseId: courseCreated._id.toString(),
+    });
   }
 });
 
 router.get("/courses", adminMiddleware, async (req, res) => {
   // Implement fetching all courses logic
   const username = req.headers.username;
-  
-  const adminCourses = await Admin.findOne({username: username});
+
+  const admin = await Admin.findOne({ username: username }).populate(
+    "courses"
+  ).select('courses');
 
   if (adminCourses) {
-    res.status(200).json(adminCourses.courses);
+    res.status(200).json({courses: admin.courses});
   }
 });
 

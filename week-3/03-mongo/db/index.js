@@ -22,6 +22,7 @@ const AdminSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Course",
+      unique: true,
     },
   ],
 });
@@ -37,12 +38,20 @@ const UserSchema = new mongoose.Schema({
     type: String,
     require: true,
   },
-  purchasedCourses: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Course",
+  purchasedCourses: {
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course"
+      },
+    ],
+    validate: {
+      validator: function (value) {
+        return new Set(value).size === value.length;
+      },
+      message: "Duplicate course",
     },
-  ],
+  },
 });
 
 const CourseSchema = new mongoose.Schema({
