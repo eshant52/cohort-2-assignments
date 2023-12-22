@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
+const MONGO_URI = require('./secrete');
 
 // Connect to MongoDB
-mongoose.connect('your-mongodb-url');
+mongoose.connect(MONGO_URI);
 
 // Define schemas
 const AdminSchema = new mongoose.Schema({
