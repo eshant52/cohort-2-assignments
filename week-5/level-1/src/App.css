@@ -1,0 +1,65 @@
+.card-container {
+  border-radius: 0.5rem;
+  box-shadow: .1rem .1rem 1rem 0.1rem lightblue;
+  max-width: 25rem;
+  padding: .5rem .5rem;
+  max-width: 35rem;
+  min-width: 35rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.5rem;
+  padding: 2rem 1.5rem;
+  border-style: dashed;
+  border-color:rgb(187, 187, 187);
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.card__desc {
+  color: #6c6c6c;
+  /* font-style: italic; */
+  font-size: small;
+}
+
+.card__interests-ul {
+  list-style-type: none;
+  font-size: small;
+  line-height: 1.3rem;
+  padding: 0rem .3rem;
+  
+}
+
+h5 {
+  padding: 0rem 0rem;
+  margin: 0rem;
+}
+
+.card__button-list {
+  display: flex;
+  justify-content: start;
+  justify-items: center;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+
+.card__button {
+  margin: 0rem 0.8rem;
+}
+
+.card__button-list :first-child {
+  margin-left: 0rem;
+  padding-left: 0rem;
+}
+
+h3 {
+  margin: 0px;
+}
+
+.card__social-links {
+  padding-top: 1rem;
+  font-size: small;
+}
